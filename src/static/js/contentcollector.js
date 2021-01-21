@@ -448,7 +448,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
               // HTMLCollection implements the iterable protocol, so for..of iteration should always
               // work. See: https://stackoverflow.com/a/41759532. Cheerio should behave the same.
               for (const child of node.children) {
-                if (child.name !== 'ul') continue;
+                if (tagName(child) !== 'ul') continue;
                 type = child.getAttribute('class');
                 if (type) break;
               }
