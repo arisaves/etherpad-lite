@@ -4,7 +4,7 @@ const readOnlyManager = require('../../db/ReadOnlyManager');
 const hasPadAccess = require('../../padaccess');
 const exporthtml = require('../../utils/ExportHtml');
 
-exports.expressCreateServer = function (hook_name, args, cb) {
+exports.expressCreateServer = (hookName, args, cb) => {
   // serve read only pad
   args.app.get('/ro/:id', async (req, res) => {
     // translate the read only pad to a padId
