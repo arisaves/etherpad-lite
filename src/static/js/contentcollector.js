@@ -35,7 +35,7 @@ const sanitizeUnicode = (s) => UNorm.nfc(s);
 const makeContentCollector = (collectStyles, abrowser, apool, className2Author) => {
   const dom = {
     isNodeText: (n) => n.nodeType === 3,
-    nodeTagName: (n) => n.tagName,
+    nodeTagName: (n) => n.tagName && n.tagName.toLowerCase(),
     nodeValue: (n) => n.nodeValue,
     nodeNumChildren: (n) => {
       if (n.childNodes == null) return 0;
@@ -67,7 +67,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
     _blockElems[element] = 1;
   });
 
-  const isBlockElement = (n) => !!_blockElems[(dom.nodeTagName(n) || '').toLowerCase()];
+  const isBlockElement = (n) => !!_blockElems[dom.nodeTagName(n) || ''];
 
   const textify = (str) => sanitizeUnicode(
       str.replace(/(\n | \n)/g, ' ')
@@ -385,7 +385,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
         }
       }
     } else {
-      const tname = (dom.nodeTagName(node) || '').toLowerCase();
+      const tname = dom.nodeTagName(node) || '';
 
       if (tname === 'img') {
         hooks.callAll('collectContentImage', {
