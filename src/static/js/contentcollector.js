@@ -211,8 +211,8 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
 
   const _recalcAttribString = (state) => {
     const lst = [];
-    for (const a in state.attribs) {
-      if (state.attribs[a]) {
+    for (const [a, count] of Object.entries(state.attribs)) {
+      if (count) {
         // The following splitting of the attribute name is a workaround
         // to enable the content collector to store key-value attributes
         // see https://github.com/ether/etherpad-lite/issues/2567 for more information
@@ -457,9 +457,13 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
             // lists do not need to have a type, so before we make a wrong guess
             // check if we find a better hint within the node's children
             if (!rr && !type) {
-              for (const i in node.children) {
-                if (node.children[i] && node.children[i].name === 'ul') {
-                  type = node.children[i].attribs.class;
+              // If `node` is from the DOM (not cheerio) then it implements the ParentNode interface
+              // and `node.children` is a HTMLCollection. The DOM + Web IDL specs guarantee that
+              // HTMLCollection implements the iterable protocol, so for..of iteration should always
+              // work. See: https://stackoverflow.com/a/41759532. Cheerio should behave the same.
+              for (const child of node.children) {
+                if (child && child.name === 'ul') {
+                  type = child.attribs.class;
                   if (type) {
                     break;
                   }
