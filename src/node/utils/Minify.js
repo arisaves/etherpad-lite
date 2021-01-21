@@ -73,7 +73,6 @@ const requestURI = (url, method, headers, callback) => {
   const parsedURL = urlutil.parse(url);
 
   let status = 500;
-  var headers = {};
   const content = [];
 
   const mockRequest = {

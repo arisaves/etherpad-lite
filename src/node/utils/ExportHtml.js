@@ -449,7 +449,7 @@ const getHTMLFromAtext = async (pad, atext, authorColors) => {
   }
 
   return pieces.join('');
-}
+};
 
 exports.getPadHTMLDocument = async function (padId, revNum) {
   const pad = await padManager.getPad(padId);

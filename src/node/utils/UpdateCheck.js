@@ -5,20 +5,18 @@ const request = require('request');
 
 let infos;
 
-const loadEtherpadInformations = () => {
-  return new Promise((resolve, reject) => {
-    request('https://static.etherpad.org/info.json', (er, response, body) => {
-      if (er) return reject(er);
+const loadEtherpadInformations = () => new Promise((resolve, reject) => {
+  request('https://static.etherpad.org/info.json', (er, response, body) => {
+    if (er) return reject(er);
 
-      try {
-        infos = JSON.parse(body);
-        return resolve(infos);
-      } catch (err) {
-        return reject(err);
-      }
-    });
+    try {
+      infos = JSON.parse(body);
+      return resolve(infos);
+    } catch (err) {
+      return reject(err);
+    }
   });
-};
+});
 
 exports.getLatestVersion = () => {
   exports.needsUpdate();

@@ -27,7 +27,6 @@ const spawn = require('child_process').spawn;
 
 // Conversion tasks will be queued up, so we don't overload the system
 const queue = async.queue(doConvertTask, 1);
-
 const libreOfficeLogger = log4js.getLogger('LibreOffice');
 
 /**
@@ -38,7 +37,7 @@ const libreOfficeLogger = log4js.getLogger('LibreOffice');
  * @param  {String}     type        The type to convert into
  * @param  {Function}   callback    Standard callback function
  */
-exports.convertFile = function (srcFile, destFile, type, callback) {
+exports.convertFile = (srcFile, destFile, type, callback) => {
   // Used for the moving of the file, not the conversion
   const fileExtension = type;
 
@@ -61,8 +60,16 @@ exports.convertFile = function (srcFile, destFile, type, callback) {
       srcFile,
       destFile: destFile.replace(/\.doc$/, '.odt'),
       type: 'odt',
-      callback() {
-        queue.push({srcFile: srcFile.replace(/\.html$/, '.odt'), destFile, type, callback, fileExtension});
+      callback: () => {
+        queue.push(
+            {
+              srcFile: srcFile.replace(/\.html$/, '.odt'),
+              destFile,
+              type,
+              callback,
+              fileExtension,
+            }
+        );
       },
     });
   } else {
@@ -70,7 +77,7 @@ exports.convertFile = function (srcFile, destFile, type, callback) {
   }
 };
 
-function doConvertTask(task, callback) {
+const doConvertTask = (task, callback) => {
   const tmpDir = os.tmpdir();
 
   async.series([
@@ -78,8 +85,10 @@ function doConvertTask(task, callback) {
      * use LibreOffice to convert task.srcFile to another format, given in
      * task.type
      */
-    function (callback) {
-      libreOfficeLogger.debug(`Converting ${task.srcFile} to format ${task.type}. The result will be put in ${tmpDir}`);
+    (callback) => {
+      libreOfficeLogger.debug(
+          `Converting ${task.srcFile} to format ${task.type}. The result will be put in ${tmpDir}`
+      );
       const soffice = spawn(settings.soffice, [
         '--headless',
         '--invisible',
@@ -113,7 +122,7 @@ function doConvertTask(task, callback) {
 
       soffice.on('exit', (code) => {
         clearTimeout(hangTimeout);
-        if (code != 0) {
+        if (code !== 0) {
           // Throw an exception if libreoffice failed
           return callback(`LibreOffice died with exit code ${code} and message: ${stdoutBuffer}`);
         }
@@ -124,10 +133,10 @@ function doConvertTask(task, callback) {
     },
 
     // Move the converted file to the correct place
-    function (callback) {
+    (callback) => {
       const filename = path.basename(task.srcFile);
-      const sourceFilename = `${filename.substr(0, filename.lastIndexOf('.'))}.${task.fileExtension}`;
-      const sourcePath = path.join(tmpDir, sourceFilename);
+      const sourceFile = `${filename.substr(0, filename.lastIndexOf('.'))}.${task.fileExtension}`;
+      const sourcePath = path.join(tmpDir, sourceFile);
       libreOfficeLogger.debug(`Renaming ${sourcePath} to ${task.destFile}`);
       fs.rename(sourcePath, task.destFile, callback);
     },
@@ -138,4 +147,4 @@ function doConvertTask(task, callback) {
     // Invoke the callback for the task
     task.callback(err);
   });
-}
+};

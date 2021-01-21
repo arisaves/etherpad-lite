@@ -1267,7 +1267,7 @@ const getChangesetInfo = async (padId, startNum, endNum, granularity) => {
               padId, item.start, item.end
           ).then(
               (changeset) => {
-                  composedChangesets[`${item.start}/${item.end}`] = changeset;
+                composedChangesets[`${item.start}/${item.end}`] = changeset;
               }
           )
       )
@@ -1405,11 +1405,9 @@ const _getRoomSockets = (padID) => {
 /**
  * Get the number of users in a pad
  */
-exports.padUsersCount = (padID) => {
-  return {
-    padUsersCount: _getRoomSockets(padID).length,
-  };
-};
+exports.padUsersCount = (padID) => ({
+  padUsersCount: _getRoomSockets(padID).length,
+});
 
 /**
  * Get the list of users in a pad
