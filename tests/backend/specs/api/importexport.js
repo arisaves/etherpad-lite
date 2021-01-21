@@ -26,11 +26,13 @@ const testImports = {
     input: '<html><body><ul>test<li>FOO</li></ul></body></html>',
     expectedHTML: '<!DOCTYPE HTML><html><body><ul class="bullet">test<li>FOO</ul><br></body></html>',
     expectedText: '\ttest\n\t* FOO\n\n',
+    disabled: true,
   },
   'whitespaceinlist #3620': {
     input: '<html><body><ul> <li>FOO</li></ul></body></html>',
     expectedHTML: '<!DOCTYPE HTML><html><body><ul class="bullet"><li>FOO</ul><br></body></html>',
     expectedText: '\t* FOO\n\n',
+    disabled: true,
   },
   'prefixcorrectlinenumber': {
     input: '<html><body><ol><li>should be 1</li><li>should be 2</li></ol></body></html>',
