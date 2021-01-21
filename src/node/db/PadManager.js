@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The Pad Manager is a Factory for pad Objects
  */

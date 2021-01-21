@@ -1,3 +1,5 @@
+'use strict';
+
 const log4js = require('log4js');
 const clientLogger = log4js.getLogger('client');
 const formidable = require('formidable');

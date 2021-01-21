@@ -1,3 +1,5 @@
+'use strict';
+
 const stats = require('ep_etherpad-lite/node/stats');
 
 exports.expressCreateServer = function (hook_name, args, cb) {

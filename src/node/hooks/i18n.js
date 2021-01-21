@@ -1,3 +1,5 @@
+'use strict';
+
 const languages = require('languages4translatewiki');
 const fs = require('fs');
 const path = require('path');

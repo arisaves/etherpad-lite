@@ -1,3 +1,5 @@
+'use strict';
+
 const padManager = require('../../db/PadManager');
 const url = require('url');
 

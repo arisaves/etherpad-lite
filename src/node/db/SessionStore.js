@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Stores session data in the database
  * Source; https://github.com/edy-b/SciFlowWriter/blob/develop/available_plugins/ep_sciflowwriter/db/DirtyStore.js

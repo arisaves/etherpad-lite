@@ -1,3 +1,4 @@
+'use strict';
 /**
  * This module provides all API functions
  */

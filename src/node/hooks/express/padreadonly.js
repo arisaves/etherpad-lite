@@ -1,3 +1,5 @@
+'use strict';
+
 const readOnlyManager = require('../../db/ReadOnlyManager');
 const hasPadAccess = require('../../padaccess');
 const exporthtml = require('../../utils/ExportHtml');

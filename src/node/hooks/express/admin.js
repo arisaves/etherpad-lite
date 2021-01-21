@@ -1,3 +1,4 @@
+'use strict';
 const eejs = require('ep_etherpad-lite/node/eejs');
 
 exports.expressCreateServer = function (hook_name, args, cb) {

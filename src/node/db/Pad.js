@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The pad object, defined with joose
  */

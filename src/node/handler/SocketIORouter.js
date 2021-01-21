@@ -1,3 +1,4 @@
+'use strict';
 /**
  * This is the Socket.IO Router. It routes the Messages between the
  * components of the Server. The components are at the moment: pad and timeslider

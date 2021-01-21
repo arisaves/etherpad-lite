@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The MessageHandler handles all Messages that comes from Socket.IO and controls the sessions
  */

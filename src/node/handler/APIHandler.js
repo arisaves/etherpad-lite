@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The API Handler handles all API http requests
  */

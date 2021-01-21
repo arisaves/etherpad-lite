@@ -1,3 +1,5 @@
+'use strict';
+
 const RESERVED_WORDS = [
   'abstract',
   'arguments',

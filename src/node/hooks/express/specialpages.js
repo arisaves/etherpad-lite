@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path');
 const eejs = require('ep_etherpad-lite/node/eejs');
 const toolbar = require('ep_etherpad-lite/node/utils/toolbar');

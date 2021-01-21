@@ -1,3 +1,5 @@
+'use strict';
+
 const minify = require('../../utils/Minify');
 const plugins = require('ep_etherpad-lite/static/js/pluginfw/plugin_defs');
 const CachingMiddleware = require('../../utils/caching_middleware');

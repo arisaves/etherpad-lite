@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * node/hooks/express/openapi.js
  *

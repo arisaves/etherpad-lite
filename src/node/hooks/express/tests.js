@@ -1,3 +1,5 @@
+'use strict';
+
 const path = require('path');
 const npm = require('npm');
 const fs = require('fs');

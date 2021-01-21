@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Handles the import requests
  */

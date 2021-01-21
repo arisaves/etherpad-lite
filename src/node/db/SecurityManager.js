@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Controls the security of pad access
  */
