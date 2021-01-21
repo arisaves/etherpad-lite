@@ -1,3 +1,4 @@
+'use strict';
 const Changeset = require('../../static/js/Changeset');
 const exportHtml = require('./ExportHtml');
 

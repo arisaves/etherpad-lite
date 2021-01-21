@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The Toolbar Module creates and renders the toolbars and buttons
  */

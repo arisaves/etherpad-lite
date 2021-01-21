@@ -1,10 +1,11 @@
+'use strict';
 const semver = require('semver');
 const settings = require('./Settings');
 const request = require('request');
 
 let infos;
 
-function loadEtherpadInformations() {
+const loadEtherpadInformations = () => {
   return new Promise((resolve, reject) => {
     request('https://static.etherpad.org/info.json', (er, response, body) => {
       if (er) return reject(er);
@@ -17,14 +18,14 @@ function loadEtherpadInformations() {
       }
     });
   });
-}
+};
 
-exports.getLatestVersion = function () {
+exports.getLatestVersion = () => {
   exports.needsUpdate();
   return infos.latestVersion;
 };
 
-exports.needsUpdate = function (cb) {
+exports.needsUpdate = (cb) => {
   loadEtherpadInformations().then((info) => {
     if (semver.gt(info.latestVersion, settings.getEpVersion())) {
       if (cb) return cb(true);
@@ -35,7 +36,7 @@ exports.needsUpdate = function (cb) {
   });
 };
 
-exports.check = function () {
+exports.check = () => {
   exports.needsUpdate((needsUpdate) => {
     if (needsUpdate) {
       console.warn(`Update available: Download the actual version ${infos.latestVersion}`);

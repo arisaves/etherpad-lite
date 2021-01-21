@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Worker thread to minify JS & CSS files out of the main NodeJS thread
  */
@@ -7,11 +8,9 @@ const Terser = require('terser');
 const path = require('path');
 const Threads = require('threads');
 
-function compressJS(content) {
-  return Terser.minify(content);
-}
+const compressJS = (content) => Terser.minify(content);
 
-function compressCSS(filename, ROOT_DIR) {
+const compressCSS = (filename, ROOT_DIR) => {
   return new Promise((res, rej) => {
     try {
       const absPath = path.join(ROOT_DIR, filename);
@@ -57,7 +56,7 @@ function compressCSS(filename, ROOT_DIR) {
       callback(null, content);
     }
   });
-}
+};
 
 Threads.expose({
   compressJS,

@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Copyright 2009 Google Inc.
  *
@@ -14,32 +15,29 @@
  * limitations under the License.
  */
 
-const Changeset = require('ep_etherpad-lite/static/js/Changeset');
+const Changeset = require('../../static/js/Changeset');
 const padManager = require('../db/PadManager');
 const _ = require('underscore');
-const Security = require('ep_etherpad-lite/static/js/security');
-const hooks = require('ep_etherpad-lite/static/js/pluginfw/hooks');
-const eejs = require('ep_etherpad-lite/node/eejs');
+const Security = require('../../static/js/security');
+const hooks = require('../../static/js/pluginfw/hooks');
+const eejs = require('../../node/eejs');
 const _analyzeLine = require('./ExportHelper')._analyzeLine;
 const _encodeWhitespace = require('./ExportHelper')._encodeWhitespace;
 const padutils = require('../../static/js/pad_utils').padutils;
 
-async function getPadHTML(pad, revNum) {
+const getPadHTML = async (pad, revNum) => {
   let atext = pad.atext;
 
   // fetch revision atext
-  if (revNum != undefined) {
+  if (revNum !== undefined) {
     atext = await pad.getInternalRevisionAText(revNum);
   }
 
   // convert atext to html
   return await getHTMLFromAtext(pad, atext);
-}
+};
 
-exports.getPadHTML = getPadHTML;
-exports.getHTMLFromAtext = getHTMLFromAtext;
-
-async function getHTMLFromAtext(pad, atext, authorColors) {
+const getHTMLFromAtext = async (pad, atext, authorColors) => {
   const apool = pad.apool();
   const textLines = atext.text.slice(0, -1).split('\n');
   const attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
@@ -72,28 +70,27 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
   const anumMap = {};
   let css = '';
 
-  const stripDotFromAuthorID = function (id) {
-    return id.replace(/\./g, '_');
-  };
+  const stripDotFromAuthorID = (id) => id.replace(/\./g, '_');
 
   if (authorColors) {
     css += '<style>\n';
 
     for (const a in apool.numToAttrib) {
       const attr = apool.numToAttrib[a];
+      let propName;
+      let newLength;
 
       // skip non author attributes
       if (attr[0] === 'author' && attr[1] !== '') {
         // add to props array
-        var propName = `author${stripDotFromAuthorID(attr[1])}`;
-        var newLength = props.push(propName);
+        propName = `author${stripDotFromAuthorID(attr[1])}`;
+        newLength = props.push(propName);
         anumMap[a] = newLength - 1;
 
         css += `.${propName} {background-color: ${authorColors[attr[1]]}}\n`;
       } else if (attr[0] === 'removed') {
-        var propName = 'removed';
-
-        var newLength = props.push(propName);
+        propName = 'removed';
+        newLength = props.push(propName);
         anumMap[a] = newLength - 1;
 
         css += '.removed {text-decoration: line-through; ' +
@@ -122,7 +119,7 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
     }
   });
 
-  function getLineHTML(text, attribs) {
+  const getLineHTML = (text, attribs) => {
     // Use order of tags (b/i/u) as order of nesting, for simplicity
     // and decent nesting.  For example,
     // <b>Just bold<b> <b><i>Bold and italics</i></b> <i>Just italics</i>
@@ -132,7 +129,7 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
     const assem = Changeset.stringAssembler();
     const openTags = [];
 
-    function getSpanClassFor(i) {
+    const getSpanClassFor = (i) => {
       // return if author colors are disabled
       if (!authorColors) return false;
 
@@ -153,16 +150,16 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
       }
 
       return false;
-    }
+    };
 
     // tags added by exportHtmlAdditionalTagsWithData will be exported as <span> with
     // data attributes
-    function isSpanWithData(i) {
+    const isSpanWithData = (i) => {
       const property = props[i];
       return _.isArray(property);
-    }
+    };
 
-    function emitOpenTag(i) {
+    const emitOpenTag = (i) => {
       openTags.unshift(i);
       const spanClass = getSpanClassFor(i);
 
@@ -175,10 +172,10 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
         assem.append(tags[i]);
         assem.append('>');
       }
-    }
+    };
 
     // this closes an open tag and removes its reference from openTags
-    function emitCloseTag(i) {
+    const emitCloseTag = (i) => {
       openTags.shift();
       const spanClass = getSpanClassFor(i);
       const spanWithData = isSpanWithData(i);
@@ -190,13 +187,13 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
         assem.append(tags[i]);
         assem.append('>');
       }
-    }
+    };
 
     const urls = padutils.findURLs(text);
 
     let idx = 0;
 
-    function processNextChars(numChars) {
+    const processNextChars = (numChars) => {
       if (numChars <= 0) {
         return;
       }
@@ -208,7 +205,7 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
       // based on the attribs used
       while (iter.hasNext()) {
         const o = iter.next();
-        var usedAttribs = [];
+        const usedAttribs = [];
 
         // mark all attribs as used
         Changeset.eachAttribNumber(o.attribs, (a) => {
@@ -218,7 +215,7 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
         });
         let outermostTag = -1;
         // find the outer most open tag that is no longer used
-        for (var i = openTags.length - 1; i >= 0; i--) {
+        for (let i = openTags.length - 1; i >= 0; i--) {
           if (usedAttribs.indexOf(openTags[i]) === -1) {
             outermostTag = i;
             break;
@@ -234,7 +231,7 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
         }
 
         // open all tags that are used but not open
-        for (i = 0; i < usedAttribs.length; i++) {
+        for (let i = 0; i < usedAttribs.length; i++) {
           if (openTags.indexOf(usedAttribs[i]) === -1) {
             emitOpenTag(usedAttribs[i]);
           }
@@ -258,14 +255,16 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
       while (openTags.length > 0) {
         emitCloseTag(openTags[0]);
       }
-    } // end processNextChars
+    };
+    // end processNextChars
     if (urls) {
       urls.forEach((urlData) => {
         const startIndex = urlData[0];
         const url = urlData[1];
         const urlLength = url.length;
         processNextChars(startIndex - idx);
-        // Using rel="noreferrer" stops leaking the URL/location of the exported HTML when clicking links in the document.
+        // Using rel="noreferrer" stops leaking the URL/location of the exported HTML
+        // when clicking links in the document.
         // Not all browsers understand this attribute, but it's part of the HTML5 standard.
         // https://html.spec.whatwg.org/multipage/links.html#link-type-noreferrer
         // Additionally, we do rel="noopener" to ensure a higher level of referrer security.
@@ -280,7 +279,8 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
     processNextChars(text.length - idx);
 
     return _processSpaces(assem.toString());
-  } // end getLineHTML
+  };
+  // end getLineHTML
   const pieces = [css];
 
   // Need to deal with constraints imposed on HTML lists; can
@@ -292,11 +292,11 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
   // => keeps track of the parents level of indentation
   let openLists = [];
   for (let i = 0; i < textLines.length; i++) {
-    var context;
-    var line = _analyzeLine(textLines[i], attribLines[i], apool);
+    let context;
+    const line = _analyzeLine(textLines[i], attribLines[i], apool);
     const lineContent = getLineHTML(line.text, line.aline);
-    if (line.listLevel)// If we are inside a list
-    {
+    // If we are inside a list
+    if (line.listLevel) {
       context = {
         line,
         lineContent,
@@ -315,8 +315,11 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
       }
       await hooks.aCallAll('getLineHTMLForExport', context);
       // To create list parent elements
-      if ((!prevLine || prevLine.listLevel !== line.listLevel) || (prevLine && line.listTypeName !== prevLine.listTypeName)) {
-        const exists = _.find(openLists, (item) => (item.level === line.listLevel && item.type === line.listTypeName));
+      if ((!prevLine || prevLine.listLevel !== line.listLevel) ||
+        (prevLine && line.listTypeName !== prevLine.listTypeName)) {
+        const exists = _.find(openLists, (item) => (
+          item.level === line.listLevel && item.type === line.listTypeName)
+        );
         if (!exists) {
           let prevLevel = 0;
           if (prevLine && prevLine.listLevel) {
@@ -326,11 +329,13 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
             prevLevel = 0;
           }
 
-          for (var diff = prevLevel; diff < line.listLevel; diff++) {
+          for (let diff = prevLevel; diff < line.listLevel; diff++) {
             openLists.push({level: diff, type: line.listTypeName});
             const prevPiece = pieces[pieces.length - 1];
 
-            if (prevPiece.indexOf('<ul') === 0 || prevPiece.indexOf('<ol') === 0 || prevPiece.indexOf('</li>') === 0) {
+            if (prevPiece.indexOf('<ul') === 0 ||
+              prevPiece.indexOf('<ol') === 0 ||
+              prevPiece.indexOf('</li>') === 0) {
               /*
                  uncommenting this breaks nested ols..
                  if the previous item is NOT a ul, NOT an ol OR closing li then close the list
@@ -350,14 +355,16 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
               if ((nextLine.listTypeName === 'number') && (nextLine.text === '')) {
                 // is the listTypeName check needed here?  null text might be completely fine!
                 // TODO Check against Uls
-                // don't do anything because the next item is a nested ol openener so we need to keep the li open
+                // don't do anything because the next item is a nested ol openener so
+                // we need to keep the li open
               } else {
                 pieces.push('<li>');
               }
             }
 
             if (line.listTypeName === 'number') {
-              // We introduce line.start here, this is useful for continuing Ordered list line numbers
+              // We introduce line.start here, this is useful for continuing
+              // Ordered list line numbers
               // in case you have a bullet in a list IE you Want
               // 1. hello
               //   * foo
@@ -384,18 +391,24 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
       }
 
       // To close list elements
-      if (nextLine && nextLine.listLevel === line.listLevel && line.listTypeName === nextLine.listTypeName) {
+      if (nextLine &&
+        nextLine.listLevel === line.listLevel &&
+        line.listTypeName === nextLine.listTypeName) {
         if (context.lineContent) {
           if ((nextLine.listTypeName === 'number') && (nextLine.text === '')) {
             // is the listTypeName check needed here?  null text might be completely fine!
             // TODO Check against Uls
-            // don't do anything because the next item is a nested ol openener so we need to keep the li open
+            // don't do anything because the next item is a nested ol openener so we need to
+            // keep the li open
           } else {
             pieces.push('</li>');
           }
         }
       }
-      if ((!nextLine || !nextLine.listLevel || nextLine.listLevel < line.listLevel) || (nextLine && line.listTypeName !== nextLine.listTypeName)) {
+      if ((!nextLine ||
+        !nextLine.listLevel ||
+        nextLine.listLevel < line.listLevel) ||
+        (nextLine && line.listTypeName !== nextLine.listTypeName)) {
         let nextLevel = 0;
         if (nextLine && nextLine.listLevel) {
           nextLevel = nextLine.listLevel;
@@ -404,10 +417,11 @@ async function getHTMLFromAtext(pad, atext, authorColors) {
           nextLevel = 0;
         }
 
-        for (var diff = nextLevel; diff < line.listLevel; diff++) {
+        for (let diff = nextLevel; diff < line.listLevel; diff++) {
           openLists = openLists.filter((el) => el.level !== diff && el.type !== line.listTypeName);
 
-          if (pieces[pieces.length - 1].indexOf('</ul') === 0 || pieces[pieces.length - 1].indexOf('</ol') === 0) {
+          if (pieces[pieces.length - 1].indexOf('</ul') === 0 ||
+            pieces[pieces.length - 1].indexOf('</ol') === 0) {
             pieces.push('</li>');
           }
 
@@ -507,3 +521,6 @@ function _processSpaces(s) {
   }
   return parts.join('');
 }
+
+exports.getPadHTML = getPadHTML;
+exports.getHTMLFromAtext = getHTMLFromAtext;
