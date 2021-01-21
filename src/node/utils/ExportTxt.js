@@ -19,15 +19,15 @@
  * limitations under the License.
  */
 
-const Changeset = require('ep_etherpad-lite/static/js/Changeset');
+const Changeset = require('../../static/js/Changeset');
 const padManager = require('../db/PadManager');
 const _analyzeLine = require('./ExportHelper')._analyzeLine;
 
 // This is slightly different than the HTML method as it passes the output to getTXTFromAText
-const getPadTXT = async function (pad, revNum) {
+const getPadTXT = async (pad, revNum) => {
   let atext = pad.atext;
 
-  if (revNum != undefined) {
+  if (revNum !== undefined) {
     // fetch revision atext
     atext = await pad.getInternalRevisionAText(revNum);
   }
@@ -38,7 +38,7 @@ const getPadTXT = async function (pad, revNum) {
 
 // This is different than the functionality provided in ExportHtml as it provides formatting
 // functionality that is designed specifically for TXT exports
-function getTXTFromAtext(pad, atext, authorColors) {
+const getTXTFromAtext = (pad, atext, authorColors) => {
   const apool = pad.apool();
   const textLines = atext.text.slice(0, -1).split('\n');
   const attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
@@ -54,7 +54,7 @@ function getTXTFromAtext(pad, atext, authorColors) {
     }
   });
 
-  function getLineTXT(text, attribs) {
+  const getLineTXT = (text, attribs) => {
     const propVals = [false, false, false];
     const ENTER = 1;
     const STAY = 2;
@@ -70,7 +70,7 @@ function getTXTFromAtext(pad, atext, authorColors) {
 
     let idx = 0;
 
-    function processNextChars(numChars) {
+    const processNextChars = (numChars) => {
       if (numChars <= 0) {
         return;
       }
@@ -171,11 +171,13 @@ function getTXTFromAtext(pad, atext, authorColors) {
           propVals[i] = false;
         }
       }
-    } // end processNextChars
+    };
+    // end processNextChars
 
     processNextChars(text.length - idx);
     return (assem.toString());
-  } // end getLineHTML
+  };
+  // end getLineHTML
 
   const pieces = [css];
 
@@ -194,7 +196,7 @@ function getTXTFromAtext(pad, atext, authorColors) {
     const line = _analyzeLine(textLines[i], attribLines[i], apool);
     let lineContent = getLineTXT(line.text, line.aline);
 
-    if (line.listTypeName == 'bullet') {
+    if (line.listTypeName === 'bullet') {
       lineContent = `* ${lineContent}`; // add a bullet
     }
 
@@ -250,11 +252,11 @@ function getTXTFromAtext(pad, atext, authorColors) {
   }
 
   return pieces.join('');
-}
+};
 
 exports.getTXTFromAtext = getTXTFromAtext;
 
-exports.getPadTXTDocument = async function (padId, revNum) {
+exports.getPadTXTDocument = async (padId, revNum) => {
   const pad = await padManager.getPad(padId);
   return getPadTXT(pad, revNum);
 };
