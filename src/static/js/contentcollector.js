@@ -438,7 +438,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
             cc.doAttrib(state, 'strikethrough');
           }
           if (tname === 'ul' || tname === 'ol') {
-            let type = node.attribs ? node.attribs.class : null;
+            let type = node.getAttribute('class');
             const rr = cls && /(?:^| )list-([a-z]+[0-9]+)\b/.exec(cls);
             // lists do not need to have a type, so before we make a wrong guess
             // check if we find a better hint within the node's children
@@ -449,7 +449,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
               // work. See: https://stackoverflow.com/a/41759532. Cheerio should behave the same.
               for (const child of node.children) {
                 if (child.name !== 'ul') continue;
-                type = child.attribs.class;
+                type = child.getAttribute('class');
                 if (type) break;
               }
             }
@@ -457,8 +457,8 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
               type = rr[1];
             } else {
               if (tname === 'ul') {
-                if ((type && type.match('indent')) ||
-                    (node.attribs && node.attribs.class && node.attribs.class.match('indent'))) {
+                const cls = node.getAttribute('class');
+                if ((type && type.match('indent')) || (cls && cls.match('indent'))) {
                   type = 'indent';
                 } else {
                   type = 'bullet';
