@@ -1,29 +1,18 @@
-'use strict';
-
-const assert = require('assert');
+const assert = require('assert').strict;
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
-let TidyHtml = null;
-let Settings = null;
-
-const npm = require('../../../../src/node_modules/npm/lib/npm.js');
+const TidyHtml = require('../../../../src/node/utils/TidyHtml');
+const Settings = require('../../../../src/node/utils/Settings');
 const nodeify = require('../../../../src/node_modules/nodeify');
 
 describe(__filename, function () {
   describe('tidyHtml', function () {
-    before(function (done) {
-      npm.load({}, (err) => {
-        assert.ok(!err);
-        TidyHtml = require('../../../../src/node/utils/TidyHtml');
-        Settings = require('../../../../src/node/utils/Settings');
-        return done();
-      });
-    });
+    before(async () => {});
 
     const tidy = (file, callback) => nodeify(TidyHtml.tidy(file), callback);
 
-    xit('Tidies HTML', function (done) {
+    it('Tidies HTML', function (done) {
       // If the user hasn't configured Tidy, we skip this tests as it's required for this test
       if (!Settings.tidyHtml) {
         this.skip();
@@ -35,6 +24,7 @@ describe(__filename, function () {
       const tmpFile = path.join(tmpDir, `tmp_${Math.floor(Math.random() * 1000000)}.html`);
       fs.writeFileSync(tmpFile, '<html><body><p>a paragraph</p><li>List without outer UL</li>trailing closing p</p></body></html>');
       tidy(tmpFile, (err) => {
+        console.error("err", err)
         assert.ok(!err);
 
         // Read the file again
@@ -53,7 +43,7 @@ describe(__filename, function () {
           '</html>',
         ].join('\n');
         assert.notStrictEqual(cleanedHtml.indexOf(expectedHtml), -1);
-        return done();
+        done();
       });
     });
 
@@ -65,7 +55,7 @@ describe(__filename, function () {
 
       tidy('/some/none/existing/file.html', (err) => {
         assert.ok(err);
-        return done();
+        done();
       });
     });
   });
