@@ -1,11 +1,11 @@
 'use strict';
-/*
+
 const assert = require('assert');
-os = require('os'),
-fs = require('fs'),
-path = require('path'),
-TidyHtml = null,
-Settings = null;
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+let TidyHtml = null;
+let Settings = null;
 
 const npm = require('../../../../src/node_modules/npm/lib/npm.js');
 const nodeify = require('../../../../src/node_modules/nodeify');
@@ -21,9 +21,7 @@ describe(__filename, function () {
       });
     });
 
-    function tidy(file, callback) {
-      return nodeify(TidyHtml.tidy(file), callback);
-    }
+    const tidy = (file, callback) => nodeify(TidyHtml.tidy(file), callback);
 
     it('Tidies HTML', function (done) {
       // If the user hasn't configured Tidy, we skip this tests as it's required for this test
@@ -72,4 +70,3 @@ describe(__filename, function () {
     });
   });
 });
-*/
