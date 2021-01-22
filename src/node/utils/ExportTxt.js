@@ -80,7 +80,7 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
 
       while (iter.hasNext()) {
         const o = iter.next();
-        var propChanged = false;
+        let propChanged = false;
 
         Changeset.eachAttribNumber(o.attribs, (a) => {
           if (a in anumMap) {
@@ -95,7 +95,7 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
           }
         });
 
-        for (var i = 0; i < propVals.length; i++) {
+        for (let i = 0; i < propVals.length; i++) {
           if (propVals[i] === true) {
             propVals[i] = LEAVE;
             propChanged = true;
@@ -111,7 +111,7 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
           // leaving bold (e.g.) also leaves italics, etc.
           let left = false;
 
-          for (var i = 0; i < propVals.length; i++) {
+          for (let i = 0; i < propVals.length; i++) {
             const v = propVals[i];
 
             if (!left) {
@@ -124,9 +124,9 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
             }
           }
 
-          var tags2close = [];
+          const tags2close = [];
 
-          for (var i = propVals.length - 1; i >= 0; i--) {
+          for (let i = propVals.length - 1; i >= 0; i--) {
             if (propVals[i] === LEAVE) {
               // emitCloseTag(i);
               tags2close.push(i);
@@ -137,7 +137,7 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
             }
           }
 
-          for (var i = 0; i < propVals.length; i++) {
+          for (let i = 0; i < propVals.length; i++) {
             if (propVals[i] === ENTER || propVals[i] === STAY) {
               propVals[i] = true;
             }
@@ -164,8 +164,8 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
         assem.append(s);
       } // end iteration over spans in line
 
-      var tags2close = [];
-      for (var i = propVals.length - 1; i >= 0; i--) {
+      const tags2close = [];
+      for (let i = propVals.length - 1; i >= 0; i--) {
         if (propVals[i]) {
           tags2close.push(i);
           propVals[i] = false;
@@ -215,7 +215,7 @@ const getTXTFromAtext = (pad, atext, authorColors) => {
         }
       }
 
-      if (line.listTypeName == 'number') {
+      if (line.listTypeName === 'number') {
         /*
         * listLevel == amount of indentation
         * listNumber(s) == item number

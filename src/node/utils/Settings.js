@@ -36,8 +36,7 @@ const jsonminify = require('jsonminify');
 const log4js = require('log4js');
 const randomString = require('./randomstring');
 const _ = require('underscore');
-const suppressDisableMsg = ` -- To suppress these warning messages change
-    suppressErrorsInPadText to true in your settings.json\n`;
+const suppressDisableMsg = ` -- To suppress these warning messages change suppressErrorsInPadText to true in your settings.json\n`;
 
 /* Root path of the installation */
 exports.root = absolutePaths.findEtherpadRoot();
@@ -666,7 +665,7 @@ const parseSettings = (settingsFilename, isSettings) => {
   }
 };
 
-exports.reloadSettings = function reloadSettings() {
+exports.reloadSettings = () => {
   // Discover where the settings file lives
   const settingsFilename = absolutePaths.makeAbsolute(argv.settings || 'settings.json');
 

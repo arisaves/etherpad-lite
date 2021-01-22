@@ -339,15 +339,23 @@ const getHTMLFromAtext = async (pad, atext, authorColors) => {
               /*
                  uncommenting this breaks nested ols..
                  if the previous item is NOT a ul, NOT an ol OR closing li then close the list
-                 so we consider this HTML, I inserted ** where it throws a problem in Example Wrong..
-                 <ol><li>one</li><li><ol><li>1.1</li><li><ol><li>1.1.1</li></ol></li></ol></li><li>two</li></ol>
+                 so we consider this HTML,
+                 I inserted ** where it throws a problem in Example Wrong..
+                 <ol><li>one</li><li><ol><li>1.1</li><li><ol><li>1.1.1</li></ol></li></ol>
+                 </li><li>two</li></ol>
 
-                 Note that closing the li then re-opening for another li item here is wrong.  The correct markup is
+                 Note that closing the li then re-opening for another li item here is wrong.
+                 The correct markup is
                  <ol><li>one<ol><li>1.1<ol><li>1.1.1</li></ol></li></ol></li><li>two</li></ol>
 
-                 Exmaple Right: <ol class="number"><li>one</li><ol start="2" class="number"><li>1.1</li><ol start="3" class="number"><li>1.1.1</li></ol></li></ol><li>two</li></ol>
-                 Example Wrong: <ol class="number"><li>one</li>**</li>**<ol start="2" class="number"><li>1.1</li>**</li>**<ol start="3" class="number"><li>1.1.1</li></ol></li></ol><li>two</li></ol>
-                 So it's firing wrong where the current piece is an li and the previous piece is an ol and next piece is an ol
+                 Exmaple Right: <ol class="number"><li>one</li><ol start="2" class="number">
+                 <li>1.1</li><ol start="3" class="number"><li>1.1.1</li></ol></li></ol>
+                 <li>two</li></ol>
+                 Example Wrong: <ol class="number"><li>one</li>**</li>**
+                 <ol start="2" class="number"><li>1.1</li>**</li>**<ol start="3" class="number">
+                 <li>1.1.1</li></ol></li></ol><li>two</li></ol>
+                 So it's firing wrong where the current piece is an li and the previous piece is
+                 an ol and next piece is an ol
                  So to remedy this we can say if next piece is NOT an OL or UL.
                  // pieces.push("</li>");
 
@@ -432,8 +440,8 @@ const getHTMLFromAtext = async (pad, atext, authorColors) => {
           }
         }
       }
-    } else// outside any list, need to close line.listLevel of lists
-    {
+    } else {
+      // outside any list, need to close line.listLevel of lists
       context = {
         line,
         lineContent,
@@ -451,7 +459,7 @@ const getHTMLFromAtext = async (pad, atext, authorColors) => {
   return pieces.join('');
 };
 
-exports.getPadHTMLDocument = async function (padId, revNum) {
+exports.getPadHTMLDocument = async (padId, revNum) => {
   const pad = await padManager.getPad(padId);
 
   // Include some Styles into the Head for Export
@@ -475,7 +483,7 @@ exports.getPadHTMLDocument = async function (padId, revNum) {
 };
 
 // copied from ACE
-function _processSpaces(s) {
+const _processSpaces = (s) => {
   const doesWrap = true;
   if (s.indexOf('<') < 0 && !doesWrap) {
     // short-cut
@@ -490,37 +498,37 @@ function _processSpaces(s) {
     let beforeSpace = false;
     // last space in a run is normal, others are nbsp,
     // end of line is nbsp
-    for (var i = parts.length - 1; i >= 0; i--) {
-      var p = parts[i];
-      if (p == ' ') {
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      if (p === ' ') {
         if (endOfLine || beforeSpace) parts[i] = '&nbsp;';
         endOfLine = false;
         beforeSpace = true;
-      } else if (p.charAt(0) != '<') {
+      } else if (p.charAt(0) !== '<') {
         endOfLine = false;
         beforeSpace = false;
       }
     }
     // beginning of line is nbsp
-    for (i = 0; i < parts.length; i++) {
-      p = parts[i];
-      if (p == ' ') {
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      if (p === ' ') {
         parts[i] = '&nbsp;';
         break;
-      } else if (p.charAt(0) != '<') {
+      } else if (p.charAt(0) !== '<') {
         break;
       }
     }
   } else {
-    for (i = 0; i < parts.length; i++) {
-      p = parts[i];
-      if (p == ' ') {
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      if (p === ' ') {
         parts[i] = '&nbsp;';
       }
     }
   }
   return parts.join('');
-}
+};
 
 exports.getPadHTML = getPadHTML;
 exports.getHTMLFromAtext = getHTMLFromAtext;
