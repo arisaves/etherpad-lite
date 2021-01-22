@@ -25,57 +25,7 @@ const path = require('path');
 const settings = require('./Settings');
 const spawn = require('child_process').spawn;
 
-// Conversion tasks will be queued up, so we don't overload the system
-const queue = async.queue(doConvertTask, 1);
 const libreOfficeLogger = log4js.getLogger('LibreOffice');
-
-/**
- * Convert a file from one type to another
- *
- * @param  {String}     srcFile     The path on disk to convert
- * @param  {String}     destFile    The path on disk where the converted file should be stored
- * @param  {String}     type        The type to convert into
- * @param  {Function}   callback    Standard callback function
- */
-exports.convertFile = (srcFile, destFile, type, callback) => {
-  // Used for the moving of the file, not the conversion
-  const fileExtension = type;
-
-  if (type === 'html') {
-    // "html:XHTML Writer File:UTF8" does a better job than normal html exports
-    if (path.extname(srcFile).toLowerCase() === '.doc') {
-      type = 'html';
-    }
-    // PDF files need to be converted with LO Draw ref https://github.com/ether/etherpad-lite/issues/4151
-    if (path.extname(srcFile).toLowerCase() === '.pdf') {
-      type = 'html:XHTML Draw File';
-    }
-  }
-
-  // soffice can't convert from html to doc directly (verified with LO 5 and 6)
-  // we need to convert to odt first, then to doc
-  // to avoid `Error: no export filter for /tmp/xxxx.doc` error
-  if (type === 'doc') {
-    queue.push({
-      srcFile,
-      destFile: destFile.replace(/\.doc$/, '.odt'),
-      type: 'odt',
-      callback: () => {
-        queue.push(
-            {
-              srcFile: srcFile.replace(/\.html$/, '.odt'),
-              destFile,
-              type,
-              callback,
-              fileExtension,
-            }
-        );
-      },
-    });
-  } else {
-    queue.push({srcFile, destFile, type, callback, fileExtension});
-  }
-};
 
 const doConvertTask = (task, callback) => {
   const tmpDir = os.tmpdir();
@@ -147,4 +97,55 @@ const doConvertTask = (task, callback) => {
     // Invoke the callback for the task
     task.callback(err);
   });
+};
+
+// Conversion tasks will be queued up, so we don't overload the system
+const queue = async.queue(doConvertTask, 1);
+
+/**
+ * Convert a file from one type to another
+ *
+ * @param  {String}     srcFile     The path on disk to convert
+ * @param  {String}     destFile    The path on disk where the converted file should be stored
+ * @param  {String}     type        The type to convert into
+ * @param  {Function}   callback    Standard callback function
+ */
+exports.convertFile = (srcFile, destFile, type, callback) => {
+  // Used for the moving of the file, not the conversion
+  const fileExtension = type;
+
+  if (type === 'html') {
+    // "html:XHTML Writer File:UTF8" does a better job than normal html exports
+    if (path.extname(srcFile).toLowerCase() === '.doc') {
+      type = 'html';
+    }
+    // PDF files need to be converted with LO Draw ref https://github.com/ether/etherpad-lite/issues/4151
+    if (path.extname(srcFile).toLowerCase() === '.pdf') {
+      type = 'html:XHTML Draw File';
+    }
+  }
+
+  // soffice can't convert from html to doc directly (verified with LO 5 and 6)
+  // we need to convert to odt first, then to doc
+  // to avoid `Error: no export filter for /tmp/xxxx.doc` error
+  if (type === 'doc') {
+    queue.push({
+      srcFile,
+      destFile: destFile.replace(/\.doc$/, '.odt'),
+      type: 'odt',
+      callback: () => {
+        queue.push(
+            {
+              srcFile: srcFile.replace(/\.html$/, '.odt'),
+              destFile,
+              type,
+              callback,
+              fileExtension,
+            }
+        );
+      },
+    });
+  } else {
+    queue.push({srcFile, destFile, type, callback, fileExtension});
+  }
 };
