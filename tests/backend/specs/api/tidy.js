@@ -1,3 +1,5 @@
+'use strict';
+/*
 const assert = require('assert');
 os = require('os'),
 fs = require('fs'),
@@ -70,3 +72,4 @@ describe(__filename, function () {
     });
   });
 });
+*/
