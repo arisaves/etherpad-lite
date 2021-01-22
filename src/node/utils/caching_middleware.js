@@ -1,4 +1,5 @@
 'use strict';
+
 /*
  * 2011 Peter 'Pita' Martischka (Primary Technology Ltd)
  *
@@ -53,10 +54,11 @@ const djb2Hash = (data) => {
   return `${chars.reduce((prev, curr) => ((prev << 5) + prev) + curr, 5381)}`;
 };
 
-const generateCacheKeyWithSha256 = (path) => _crypto.createHash('sha256')
-    .update(path).digest('hex');
+const generateCacheKeyWithSha256 =
+    (path) => _crypto.createHash('sha256').update(path).digest('hex');
 
-const generateCacheKeyWithDjb2 = (path) => Buffer.from(djb2Hash(path)).toString('hex');
+const generateCacheKeyWithDjb2 =
+    (path) => Buffer.from(djb2Hash(path)).toString('hex');
 
 let generateCacheKey;
 
@@ -75,8 +77,8 @@ if (_crypto) {
   should replace this.
 */
 
-const CachingMiddleware = function () {};
-
+function CachingMiddleware() {
+}
 CachingMiddleware.prototype = new function () {
   const handle = (req, res, next) => {
     if (!(req.method === 'GET' || req.method === 'HEAD') || !CACHE_DIR) {
@@ -123,7 +125,7 @@ CachingMiddleware.prototype = new function () {
       };
 
       old_res.writeHead = res.writeHead;
-      res.writeHead = (status, headers) => {
+      res.writeHead = function (status, headers) {
         res.writeHead = old_res.writeHead;
         if (status === 200) {
           // Update cache
@@ -136,18 +138,18 @@ CachingMiddleware.prototype = new function () {
 
           old_res.write = res.write;
           old_res.end = res.end;
-          res.write = (data, encoding) => {
+          res.write = function (data, encoding) {
             buffer += data.toString(encoding);
           };
-          res.end = (data, encoding) => {
+          res.end = function (data, encoding) {
             async.parallel([
-              (callback) => {
+              function (callback) {
                 const path = `${CACHE_DIR}minified_${cacheKey}`;
                 fs.writeFile(path, buffer, (error, stats) => {
                   callback();
                 });
               },
-              (callback) => {
+              function (callback) {
                 const path = `${CACHE_DIR}minified_${cacheKey}.gz`;
                 zlib.gzip(buffer, (error, content) => {
                   if (error) {
@@ -168,8 +170,8 @@ CachingMiddleware.prototype = new function () {
           // Nothing new changed from the cached version.
           old_res.write = res.write;
           old_res.end = res.end;
-          res.write = (data, encoding) => {};
-          res.end = (data, encoding) => { respond(); };
+          res.write = function (data, encoding) {};
+          res.end = function (data, encoding) { respond(); };
         } else {
           res.writeHead(status, headers);
         }
@@ -181,7 +183,7 @@ CachingMiddleware.prototype = new function () {
       // which is to say, not at all.
       // TODO: Implement locking on write or ditch caching of gzip and use
       // existing middlewares.
-      const respond = () => {
+      function respond() {
         req.method = old_req.method || req.method;
         res.write = old_res.write || res.write;
         res.end = old_res.end || res.end;
@@ -210,7 +212,7 @@ CachingMiddleware.prototype = new function () {
           res.writeHead(statusCode, headers);
           res.end();
         }
-      };
+      }
     });
   };
 
