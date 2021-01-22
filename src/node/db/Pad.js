@@ -4,19 +4,18 @@
  */
 
 
-const Changeset = require('ep_etherpad-lite/static/js/Changeset');
-const AttributePool = require('ep_etherpad-lite/static/js/AttributePool');
+const Changeset = require('../../static/js/Changeset');
+const AttributePool = require('../../static/js/AttributePool');
 const db = require('./DB');
 const settings = require('../utils/Settings');
 const authorManager = require('./AuthorManager');
 const padManager = require('./PadManager');
 const padMessageHandler = require('../handler/PadMessageHandler');
 const groupManager = require('./GroupManager');
-const customError = require('../utils/customError');
+const CustomError = require('../utils/customError');
 const readOnlyManager = require('./ReadOnlyManager');
-const crypto = require('crypto');
 const randomString = require('../utils/randomstring');
-const hooks = require('ep_etherpad-lite/static/js/pluginfw/hooks');
+const hooks = require('../../static/js/pluginfw/hooks');
 const promises = require('../utils/promises');
 
 // serialization/deserialization attributes
@@ -24,15 +23,16 @@ const attributeBlackList = ['id'];
 const jsonableList = ['pool'];
 
 /**
- * Copied from the Etherpad source code. It converts Windows line breaks to Unix line breaks and convert Tabs to spaces
+ * Copied from the Etherpad source code. It converts Windows line breaks to Unix
+ * line breaks and convert Tabs to spaces
  * @param txt
  */
-exports.cleanText = function (txt) {
-  return txt.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\t/g, '        ').replace(/\xa0/g, ' ');
-};
+exports.cleanText = (txt) => txt.replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/\t/g, '        ')
+    .replace(/\xa0/g, ' ');
 
-
-const Pad = function Pad(id) {
+const Pad = (id) => {
   this.atext = Changeset.makeAText('\n');
   this.pool = new AttributePool();
   this.head = -1;
@@ -57,7 +57,7 @@ Pad.prototype.getSavedRevisionsNumber = function getSavedRevisionsNumber() {
 };
 
 Pad.prototype.getSavedRevisionsList = function getSavedRevisionsList() {
-  const savedRev = new Array();
+  const savedRev = [];
   for (const rev in this.savedRevisions) {
     savedRev.push(this.savedRevisions[rev].revNum);
   }
@@ -86,11 +86,11 @@ Pad.prototype.appendRevision = async function appendRevision(aChangeset, author)
   newRevData.meta.timestamp = Date.now();
 
   // ex. getNumForAuthor
-  if (author != '') {
+  if (author !== '') {
     this.pool.putAttrib(['author', author || '']);
   }
 
-  if (newRev % 100 == 0) {
+  if (newRev % 100 === 0) {
     newRevData.meta.pool = this.pool;
     newRevData.meta.atext = this.atext;
   }
@@ -105,7 +105,7 @@ Pad.prototype.appendRevision = async function appendRevision(aChangeset, author)
     p.push(authorManager.addPad(author, this.id));
   }
 
-  if (this.head == 0) {
+  if (this.head === 0) {
     hooks.callAll('padCreate', {pad: this, author});
   } else {
     hooks.callAll('padUpdate', {pad: this, author, revs: newRev, changeset: aChangeset});
@@ -154,7 +154,7 @@ Pad.prototype.getAllAuthors = function getAllAuthors() {
   const authors = [];
 
   for (const key in this.pool.numToAttrib) {
-    if (this.pool.numToAttrib[key][0] == 'author' && this.pool.numToAttrib[key][1] != '') {
+    if (this.pool.numToAttrib[key][0] === 'author' && this.pool.numToAttrib[key][1] !== '') {
       authors.push(this.pool.numToAttrib[key][1]);
     }
   }
@@ -178,9 +178,10 @@ Pad.prototype.getInternalRevisionAText = async function getInternalRevisionAText
 
   // get all needed changesets
   const changesets = [];
-  await Promise.all(neededChangesets.map((item) => this.getRevisionChangeset(item).then((changeset) => {
-    changesets[item] = changeset;
-  })));
+  await Promise.all(neededChangesets.map(
+      (item) => this.getRevisionChangeset(item).then((changeset) => {
+        changesets[item] = changeset;
+      })));
 
   // we should have the atext by now
   let atext = await p_atext;
@@ -205,10 +206,11 @@ Pad.prototype.getAllAuthorColors = async function getAllAuthorColors() {
   const returnTable = {};
   const colorPalette = authorManager.getColorPalette();
 
-  await Promise.all(authors.map((author) => authorManager.getAuthorColorId(author).then((colorId) => {
-    // colorId might be a hex color or an number out of the palette
-    returnTable[author] = colorPalette[colorId] || colorId;
-  })));
+  await Promise.all(authors.map((author) => authorManager.getAuthorColorId(author)
+      .then((colorId) => {
+        // colorId might be a hex color or an number out of the palette
+        returnTable[author] = colorPalette[colorId] || colorId;
+      })));
 
   return returnTable;
 };
@@ -228,7 +230,7 @@ Pad.prototype.getValidRevisionRange = function getValidRevisionRange(startRev, e
     endRev = head;
   }
 
-  if (startRev !== null && endRev !== null) {
+  if (startRev != null && endRev != null) {
     return {startRev, endRev};
   }
   return null;
@@ -252,7 +254,7 @@ Pad.prototype.setText = async function setText(newText) {
   // We want to ensure the pad still ends with a \n, but otherwise keep
   // getText() and setText() consistent.
   let changeset;
-  if (newText[newText.length - 1] == '\n') {
+  if (newText[newText.length - 1] === '\n') {
     changeset = Changeset.makeSplice(oldText, 0, oldText.length, newText);
   } else {
     changeset = Changeset.makeSplice(oldText, 0, oldText.length - 1, newText);
@@ -305,9 +307,10 @@ Pad.prototype.getChatMessages = async function getChatMessages(start, end) {
 
   // get all entries out of the database
   const entries = [];
-  await Promise.all(neededEntries.map((entryObject) => this.getChatMessage(entryObject.entryNum).then((entry) => {
-    entries[entryObject.order] = entry;
-  })));
+  await Promise.all(neededEntries.map((entryObject) => this.getChatMessage(entryObject.entryNum)
+      .then((entry) => {
+        entries[entryObject.order] = entry;
+      })));
 
   // sort out broken chat entries
   // it looks like in happened in the past that the chat head was
@@ -385,7 +388,8 @@ Pad.prototype.copy = async function copy(destinationID, force) {
   // copy all chat messages
   const chatHead = this.chatHead;
   for (let i = 0; i <= chatHead; ++i) {
-    const p = db.get(`pad:${sourceID}:chat:${i}`).then((chat) => db.set(`pad:${destinationID}:chat:${i}`, chat));
+    const p = db.get(`pad:${sourceID}:chat:${i}`)
+        .then((chat) => db.set(`pad:${destinationID}:chat:${i}`, chat));
     promises.push(p);
   }
 
@@ -427,7 +431,7 @@ Pad.prototype.checkIfGroupExistAndReturnIt = async function checkIfGroupExistAnd
 
     // group does not exist
     if (!groupExists) {
-      throw new customError('groupID does not exist for destinationID', 'apierror');
+      throw new CustomError('groupID does not exist for destinationID', 'apierror');
     }
   }
   return destGroupID;
@@ -447,7 +451,7 @@ Pad.prototype.removePadIfForceIsTrueAndAlreadyExist = async function removePadIf
   if (exists) {
     if (!force) {
       console.error('erroring out without force');
-      throw new customError('destinationID already exists', 'apierror');
+      throw new CustomError('destinationID already exists', 'apierror');
     }
 
     // exists and forcing
