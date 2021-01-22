@@ -12,13 +12,11 @@ const removeItem = (array, what) => {
   return array;
 };
 
-const defaultButtonAttributes = (name, overrides) => {
-  return {
-    command: name,
-    localizationId: `pad.toolbar.${name}.title`,
-    class: `buttonicon buttonicon-${name}`,
-  };
-};
+const defaultButtonAttributes = (name, overrides) => ({
+  command: name,
+  localizationId: `pad.toolbar.${name}.title`,
+  class: `buttonicon buttonicon-${name}`,
+});
 
 const tag = (name, attributes, contents) => {
   const aStr = tagAttributes(attributes);
