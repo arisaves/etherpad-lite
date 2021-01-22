@@ -32,7 +32,7 @@ exports.cleanText = (txt) => txt.replace(/\r\n/g, '\n')
     .replace(/\t/g, '        ')
     .replace(/\xa0/g, ' ');
 
-const Pad = (id) => {
+const Pad = function Pad(id) {
   this.atext = Changeset.makeAText('\n');
   this.pool = new AttributePool();
   this.head = -1;
@@ -178,8 +178,8 @@ Pad.prototype.getInternalRevisionAText = async function getInternalRevisionAText
 
   // get all needed changesets
   const changesets = [];
-  await Promise.all(neededChangesets.map(
-      (item) => this.getRevisionChangeset(item).then((changeset) => {
+  await Promise.all(
+      neededChangesets.map((item) => this.getRevisionChangeset(item).then((changeset) => {
         changesets[item] = changeset;
       })));
 
@@ -206,8 +206,8 @@ Pad.prototype.getAllAuthorColors = async function getAllAuthorColors() {
   const returnTable = {};
   const colorPalette = authorManager.getColorPalette();
 
-  await Promise.all(authors.map((author) => authorManager.getAuthorColorId(author)
-      .then((colorId) => {
+  await Promise.all(
+      authors.map((author) => authorManager.getAuthorColorId(author).then((colorId) => {
         // colorId might be a hex color or an number out of the palette
         returnTable[author] = colorPalette[colorId] || colorId;
       })));
@@ -307,8 +307,8 @@ Pad.prototype.getChatMessages = async function getChatMessages(start, end) {
 
   // get all entries out of the database
   const entries = [];
-  await Promise.all(neededEntries.map((entryObject) => this.getChatMessage(entryObject.entryNum)
-      .then((entry) => {
+  await Promise.all(
+      neededEntries.map((entryObject) => this.getChatMessage(entryObject.entryNum).then((entry) => {
         entries[entryObject.order] = entry;
       })));
 
@@ -396,7 +396,8 @@ Pad.prototype.copy = async function copy(destinationID, force) {
   // copy all revisions
   const revHead = this.head;
   for (let i = 0; i <= revHead; ++i) {
-    const p = db.get(`pad:${sourceID}:revs:${i}`).then((rev) => db.set(`pad:${destinationID}:revs:${i}`, rev));
+    const p = db.get(`pad:${sourceID}:revs:${i}`)
+        .then((rev) => db.set(`pad:${destinationID}:revs:${i}`, rev));
     promises.push(p);
   }
 
