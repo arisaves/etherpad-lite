@@ -299,24 +299,14 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
     _reachBlockPoint(node, 0, state);
 
     if (isNodeText(node)) {
-      let txt = node.nodeValue;
       const tname = node.parentNode.getAttribute('name');
-
-      const txtFromHook = hooks.callAll('collectContentLineText', {
-        cc: this,
-        state,
-        tname,
-        node,
-        text: txt,
-        styl: null,
-        cls: null,
-      });
-
-      if (typeof (txtFromHook) === 'object') {
-        txt = node.nodeValue;
-      } else if (txtFromHook) {
-        txt = txtFromHook;
-      }
+      const context = {cc: this, state, tname, node, text: node.nodeValue};
+      // Hook functions may either return a string (deprecated) or modify context.text. If any hook
+      // function modifies context.text then all returned strings are ignored. If no hook functions
+      // modify context.text, the first hook function to return a string wins.
+      const [hookTxt] =
+          hooks.callAll('collectContentLineText', context).filter((s) => typeof s === 'string');
+      let txt = context.text === node.nodeValue && hookTxt != null ? hookTxt : context.text;
 
       let rest = '';
       let x = 0; // offset into original text
