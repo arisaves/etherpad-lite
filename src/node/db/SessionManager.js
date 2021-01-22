@@ -244,7 +244,7 @@ exports.listSessionsOfAuthor = async (authorID) => {
 
 // this function is basically the code listSessionsOfAuthor and listSessionsOfGroup has in common
 // required to return null rather than an empty object if there are none
-async function listSessionsWithDBKey(dbkey) {
+const listSessionsWithDBKey = async (dbkey) => {
   // get the group2sessions entry
   const sessionObject = await db.get(dbkey);
   const sessions = sessionObject ? sessionObject.sessionIDs : null;
@@ -265,7 +265,7 @@ async function listSessionsWithDBKey(dbkey) {
   }
 
   return sessions;
-}
+};
 
 // checks if a number is an int
 const isInt = (value) => (parseFloat(value) === parseInt(value)) && !isNaN(value);
