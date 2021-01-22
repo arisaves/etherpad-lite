@@ -135,7 +135,7 @@ describe(__filename, function () {
         await agent.post(`/p/${testPadId}/import`)
             .attach('file', wordDoc, {filename: '/test.doc', contentType: 'application/msword'})
             .expect(200)
-            .expect(/FrameCall\('undefined', 'ok'\);/);
+            .expect(/'undefined', 'ok'/);
       });
 
       it('exports DOC', async function () {
@@ -152,7 +152,7 @@ describe(__filename, function () {
               contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             })
             .expect(200)
-            .expect(/FrameCall\('undefined', 'ok'\);/);
+            .expect(/'undefined', 'ok'/);
       });
 
       it('exports DOC from imported DOCX', async function () {
@@ -166,7 +166,7 @@ describe(__filename, function () {
         await agent.post(`/p/${testPadId}/import`)
             .attach('file', pdfDoc, {filename: '/test.pdf', contentType: 'application/pdf'})
             .expect(200)
-            .expect(/FrameCall\('undefined', 'ok'\);/);
+            .expect(/'undefined', 'ok'/);
       });
 
       it('exports PDF', async function () {
@@ -180,7 +180,7 @@ describe(__filename, function () {
         await agent.post(`/p/${testPadId}/import`)
             .attach('file', odtDoc, {filename: '/test.odt', contentType: 'application/odt'})
             .expect(200)
-            .expect(/FrameCall\('undefined', 'ok'\);/);
+            .expect(/'undefined', 'ok'/);
       });
 
       it('exports ODT', async function () {
@@ -198,7 +198,7 @@ describe(__filename, function () {
             contentType: 'application/etherpad',
           })
           .expect(200)
-          .expect(/FrameCall\('true', 'ok'\);/);
+          .expect(/'true', 'ok'/);
     });
 
     it('exports Etherpad', async function () {
@@ -220,7 +220,7 @@ describe(__filename, function () {
       await agent.post(`/p/${testPadId}/import`)
           .attach('file', padText, {filename: '/test.xasdasdxx', contentType: 'weirdness/jobby'})
           .expect(200)
-          .expect((res) => assert.doesNotMatch(res.text, /FrameCall\('undefined', 'ok'\);/));
+          .expect((res) => assert.doesNotMatch(res.text, /'undefined', 'ok'/));
     });
 
     describe('Import authorization checks', function () {

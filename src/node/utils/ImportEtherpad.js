@@ -1,4 +1,3 @@
-'use strict';
 /**
  * 2014 John McLear (Etherpad Foundation / McLear Ltd)
  *
@@ -15,10 +14,11 @@
  * limitations under the License.
  */
 
+const log4js = require('log4js');
 const db = require('../db/DB');
-const hooks = require('../../static/js/pluginfw/hooks');
+const hooks = require('ep_etherpad-lite/static/js/pluginfw/hooks');
 
-exports.setPadRaw = (padId, records) => {
+exports.setPadRaw = function (padId, records) {
   records = JSON.parse(records);
 
   Object.keys(records).forEach(async (key) => {
