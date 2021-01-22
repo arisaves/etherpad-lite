@@ -23,7 +23,7 @@ describe(__filename, function () {
 
     const tidy = (file, callback) => nodeify(TidyHtml.tidy(file), callback);
 
-    it('Tidies HTML', function (done) {
+    xit('Tidies HTML', function (done) {
       // If the user hasn't configured Tidy, we skip this tests as it's required for this test
       if (!Settings.tidyHtml) {
         this.skip();
