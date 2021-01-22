@@ -36,7 +36,7 @@ const jsonminify = require('jsonminify');
 const log4js = require('log4js');
 const randomString = require('./randomstring');
 const _ = require('underscore');
-const suppressDisableMsg = ` -- To suppress these warning messages change suppressErrorsInPadText to true in your settings.json\n`;
+const suppressDisableMsg = ' -- To suppress these warning messages change suppressErrorsInPadText to true in your settings.json\n'; /* eslint-disable-line max-len */
 
 /* Root path of the installation */
 exports.root = absolutePaths.findEtherpadRoot();
@@ -117,7 +117,7 @@ exports.dbSettings = {filename: path.join(exports.root, 'var/dirty.db')};
 /**
  * The default Text of a new pad
  */
-exports.defaultPadText = 'Welcome to Etherpad!\n\nThis pad text is synchronized as you type, so that everyone viewing this page sees the same text. This allows you to collaborate seamlessly on documents!\n\nEtherpad on Github: https:\/\/github.com\/ether\/etherpad-lite\n';
+exports.defaultPadText = 'Welcome to Etherpad!\n\nThis pad text is synchronized as you type, so that everyone viewing this page sees the same text. This allows you to collaborate seamlessly on documents!\n\nEtherpad on Github: https:\/\/github.com\/ether\/etherpad-lite\n'; /* eslint-disable-line max-len */
 
 /**
  * The default Pad Settings for a user (Can be overridden by changing the setting
@@ -584,7 +584,8 @@ const lookupEnvironmentVariables = (obj) => {
     const defaultValue = match[3];
 
     if ((envVarValue === undefined) && (defaultValue === undefined)) {
-      console.warn(`Environment variable "${envVarName}" does not contain any value for configuration key "${key}", and no default was given. Returning null.`);
+      console.warn(`Environment variable "${envVarName}" does not contain any value for
+          configuration key "${key}", and no default was given. Returning null.`);
 
       /*
        * We have to return null, because if we just returned undefined, the
@@ -594,7 +595,8 @@ const lookupEnvironmentVariables = (obj) => {
     }
 
     if ((envVarValue === undefined) && (defaultValue !== undefined)) {
-      console.debug(`Environment variable "${envVarName}" not found for configuration key "${key}". Falling back to default value.`);
+      console.debug(`Environment variable "${envVarName}" not found for
+          configuration key "${key}". Falling back to default value.`);
 
       return coerceValue(defaultValue);
     }
@@ -605,7 +607,8 @@ const lookupEnvironmentVariables = (obj) => {
      * For numeric and boolean strings let's convert it to proper types before
      * returning it, in order to maintain backward compatibility.
      */
-    console.debug(`Configuration key "${key}" will be read from environment variable "${envVarName}"`);
+    console.debug(`Configuration key "${key}" will be read from
+        environment variable "${envVarName}"`);
 
     return coerceValue(envVarValue);
   });
@@ -659,7 +662,8 @@ const parseSettings = (settingsFilename, isSettings) => {
 
     return replacedSettings;
   } catch (e) {
-    console.error(`There was an error processing your ${settingsType} file from ${settingsFilename}: ${e.message}`);
+    console.error(`There was an error processing your ${settingsType} file from
+        ${settingsFilename}: ${e.message}`);
 
     process.exit(1);
   }
@@ -686,7 +690,9 @@ exports.reloadSettings = () => {
   log4js.replaceConsole();
 
   if (!exports.skinName) {
-    console.warn('No "skinName" parameter found. Please check out settings.json.template and update your settings.json. Falling back to the default "colibris".');
+    console.warn(`No "skinName" parameter found.
+        Please check out settings.json.template and update your settings.json.
+        Falling back to the default "colibris".`);
     exports.skinName = 'colibris';
   }
 
@@ -696,7 +702,9 @@ exports.reloadSettings = () => {
     const countPieces = exports.skinName.split(path.sep).length;
 
     if (countPieces !== 1) {
-      console.error(`skinName must be the name of a directory under "${skinBasePath}". This is not valid: "${exports.skinName}". Falling back to the default "colibris".`);
+      console.error(`skinName must be the name of a directory under "${skinBasePath}".
+          This is not valid: "${exports.skinName}".
+          Falling back to the default "colibris".`);
 
       exports.skinName = 'colibris';
     }
@@ -706,14 +714,16 @@ exports.reloadSettings = () => {
 
     // what if someone sets skinName == ".." or "."? We catch him!
     if (absolutePaths.isSubdir(skinBasePath, skinPath) === false) {
-      console.error(`Skin path ${skinPath} must be a subdirectory of ${skinBasePath}. Falling back to the default "colibris".`);
+      console.error(`Skin path ${skinPath} must be a subdirectory of ${skinBasePath}.
+          Falling back to the default "colibris".`);
 
       exports.skinName = 'colibris';
       skinPath = path.join(skinBasePath, exports.skinName);
     }
 
     if (fs.existsSync(skinPath) === false) {
-      console.error(`Skin path ${skinPath} does not exist. Falling back to the default "colibris".`);
+      console.error(`Skin path ${skinPath} does not exist.
+          Falling back to the default "colibris".`);
       exports.skinName = 'colibris';
       skinPath = path.join(skinBasePath, exports.skinName);
     }
@@ -728,7 +738,8 @@ exports.reloadSettings = () => {
         if (!exists) {
           const abiwordError = 'Abiword does not exist at this path, check your settings file.';
           if (!exports.suppressErrorsInPadText) {
-            exports.defaultPadText = `${exports.defaultPadText}\nError: ${abiwordError}${suppressDisableMsg}`;
+            exports.defaultPadText = `${exports.defaultPadText}\n
+                Error: ${abiwordError}${suppressDisableMsg}`;
           }
           console.error(`${abiwordError} File location: ${exports.abiword}`);
           exports.abiword = null;
@@ -740,10 +751,12 @@ exports.reloadSettings = () => {
   if (exports.soffice) {
     fs.exists(exports.soffice, (exists) => {
       if (!exists) {
-        const sofficeError = 'soffice (libreoffice) does not exist at this path, check your settings file.';
+        const sofficeError = `soffice (libreoffice) does not exist at this path,
+            check your settings file.`;
 
         if (!exports.suppressErrorsInPadText) {
-          exports.defaultPadText = `${exports.defaultPadText}\nError: ${sofficeError}${suppressDisableMsg}`;
+          exports.defaultPadText = `${exports.defaultPadText}\n
+          Error: ${sofficeError}${suppressDisableMsg}`;
         }
         console.error(`${sofficeError} File location: ${exports.soffice}`);
         exports.soffice = null;
@@ -757,7 +770,8 @@ exports.reloadSettings = () => {
       exports.sessionKey = fs.readFileSync(sessionkeyFilename, 'utf8');
       console.info(`Session key loaded from: ${sessionkeyFilename}`);
     } catch (e) {
-      console.info(`Session key file "${sessionkeyFilename}" not found. Creating with random contents.`);
+      console.info(`Session key file "${sessionkeyFilename}" not found. 
+          Creating with random contents.`);
       exports.sessionKey = randomString(32);
       fs.writeFileSync(sessionkeyFilename, exports.sessionKey, 'utf8');
     }
@@ -769,9 +783,10 @@ exports.reloadSettings = () => {
   }
 
   if (exports.dbType === 'dirty') {
-    const dirtyWarning = 'DirtyDB is used. This is fine for testing but not recommended for production.';
+    const dirtyWarning = 'DirtyDB is used. This is not recommended for production.';
     if (!exports.suppressErrorsInPadText) {
-      exports.defaultPadText = `${exports.defaultPadText}\nWarning: ${dirtyWarning}${suppressDisableMsg}`;
+      exports.defaultPadText = `${exports.defaultPadText}\n
+          Warning: ${dirtyWarning}${suppressDisableMsg}`;
     }
 
     exports.dbSettings.filename = absolutePaths.makeAbsolute(exports.dbSettings.filename);
@@ -780,7 +795,8 @@ exports.reloadSettings = () => {
 
   if (exports.ip === '') {
     // using Unix socket for connectivity
-    console.warn('The settings file contains an empty string ("") for the "ip" parameter. The "port" parameter will be interpreted as the path to a Unix socket to bind at.');
+    console.warn(`The settings file contains an empty string ("") for the "ip" parameter.
+        The "port" parameter will be interpreted as the path to a Unix socket to bind at.`);
   }
 };
 
