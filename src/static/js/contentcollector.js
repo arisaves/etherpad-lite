@@ -32,30 +32,13 @@ const hooks = require('./pluginfw/hooks');
 
 const sanitizeUnicode = (s) => UNorm.nfc(s);
 
-const makeContentCollector = (collectStyles, abrowser, apool, className2Author) => {
-  const dom = {
-    isNodeText: (n) => n.nodeType === 3,
-    nodeTagName: (n) => n.tagName && n.tagName.toLowerCase(),
-    nodeValue: (n) => n.nodeValue,
-    nodeNumChildren: (n) => {
-      if (n.childNodes == null) return 0;
-      return n.childNodes.length;
-    },
-    nodeChild: (n, i) => {
-      if (n.childNodes.item == null) {
-        return n.childNodes[i];
-      }
-      return n.childNodes.item(i);
-    },
-    nodeProp: (n, p) => n[p],
-    nodeAttr: (n, a) => {
-      if (n.getAttribute != null) return n.getAttribute(a);
-      if (n.attribs != null) return n.attribs[a];
-      return null;
-    },
-    optNodeInnerHTML: (n) => n.innerHTML,
-  };
+// This file is expected to work both in browsers and with cheerio in Node.js (for importing HTML).
+// Cheerio doesn't provide a Node object, at least not as a global, so the Node.*_NODE constants are
+// not available.
+const isNodeText = (n) => n.nodeType === 3; // Node.TEXT_NODE
+const tagName = (n) => n.tagTame && n.tagName.toLowerCase();
 
+const makeContentCollector = (collectStyles, abrowser, apool, className2Author) => {
   const _blockElems = {
     div: 1,
     p: 1,
@@ -67,7 +50,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
     _blockElems[element] = 1;
   });
 
-  const isBlockElement = (n) => !!_blockElems[dom.nodeTagName(n) || ''];
+  const isBlockElement = (n) => !!_blockElems[tagName(n) || ''];
 
   const textify = (str) => sanitizeUnicode(
       str.replace(/(\n | \n)/g, ' ')
@@ -75,7 +58,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
           .replace(/\xa0/g, ' ')
           .replace(/\t/g, '        '));
 
-  const getAssoc = (node, name) => dom.nodeProp(node, `_magicdom_${name}`);
+  const getAssoc = (node, name) => node[`_magicdom_${name}`];
 
   const lines = (() => {
     const textArray = [];
@@ -123,13 +106,13 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
   let selEnd = [-1, -1];
   const _isEmpty = (node, state) => {
     // consider clean blank lines pasted in IE to be empty
-    if (dom.nodeNumChildren(node) === 0) return true;
-    if (dom.nodeNumChildren(node) === 1 &&
+    if (node.childNodes.length === 0) return true;
+    if (node.childNodes.length === 1 &&
         getAssoc(node, 'shouldBeEmpty') &&
-        dom.optNodeInnerHTML(node) === '&nbsp;' &&
+        node.innerHTML === '&nbsp;' &&
         !getAssoc(node, 'unpasted')) {
       if (state) {
-        const child = dom.nodeChild(node, 0);
+        const child = node.childNodes[0];
         _reachPoint(child, 0, state);
         _reachPoint(child, 1, state);
       }
@@ -149,7 +132,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
   };
 
   const _reachBlockPoint = (nd, idx, state) => {
-    if (!dom.isNodeText(nd)) _reachPoint(nd, idx, state);
+    if (!isNodeText(nd)) _reachPoint(nd, idx, state);
   };
 
   const _reachPoint = (nd, idx, state) => {
@@ -316,9 +299,9 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
     const startLine = lines.length() - 1;
     _reachBlockPoint(node, 0, state);
 
-    if (dom.isNodeText(node)) {
-      let txt = dom.nodeValue(node);
-      const tname = dom.nodeAttr(node.parentNode, 'name');
+    if (isNodeText(node)) {
+      let txt = node.nodeValue;
+      const tname = node.parentNode.getAttribute('name');
 
       const txtFromHook = hooks.callAll('collectContentLineText', {
         cc: this,
@@ -331,7 +314,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
       });
 
       if (typeof (txtFromHook) === 'object') {
-        txt = dom.nodeValue(node);
+        txt = node.nodeValue;
       } else if (txtFromHook) {
         txt = txtFromHook;
       }
@@ -385,7 +368,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
         }
       }
     } else {
-      const tname = dom.nodeTagName(node) || '';
+      const tname = tagName(node) || '';
 
       if (tname === 'img') {
         hooks.callAll('collectContentImage', {
@@ -403,7 +386,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
 
       if (tname === 'br') {
         this.breakLine = true;
-        const tvalue = dom.nodeAttr(node, 'value');
+        const tvalue = node.getAttribute('value');
         const induceLineBreak = hooks.callAll('collectContentLineBreak', {
           cc: this,
           state,
@@ -421,8 +404,8 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
       } else if (tname === 'script' || tname === 'style') {
         // ignore
       } else if (!isEmpty) {
-        let styl = dom.nodeAttr(node, 'style');
-        let cls = dom.nodeAttr(node, 'class');
+        let styl = node.getAttribute('style');
+        let cls = node.getAttribute('class');
         let isPre = (tname === 'pre');
         if ((!isPre) && abrowser && abrowser.safari) {
           isPre = (styl && /\bwhite-space:\s*pre\b/i.exec(styl));
@@ -559,9 +542,7 @@ const makeContentCollector = (collectStyles, abrowser, apool, className2Author) 
           }
         }
 
-        const nc = dom.nodeNumChildren(node);
-        for (let i = 0; i < nc; i++) {
-          const c = dom.nodeChild(node, i);
+        for (const c of node.childNodes) {
           cc.collectContent(c, state);
         }
 
